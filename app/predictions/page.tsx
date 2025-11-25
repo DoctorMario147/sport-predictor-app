@@ -87,8 +87,6 @@ export default function PredictionsPage() {
     return (
       <div className="max-w-4xl mx-auto p-6">
           <Navbar />
-          <h1 className="text-3xl font-bold mb-6">Make Your Predictions</h1>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {fixtures.map((f) => (
                   <FixtureCard

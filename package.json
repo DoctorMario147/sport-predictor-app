@@ -28,5 +28,8 @@
     "prisma": "^6.19.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   }
 }

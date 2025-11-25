@@ -1,0 +1,43 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int                 @id @default(autoincrement())
+  name        String
+  passcode    String              @unique
+  predictions FixturePrediction[]
+}
+
+model Fixture {
+  id          Int                 @id
+  matchday    Int
+  season      String
+  homeTeam    String
+  awayTeam    String
+  matchTime   DateTime
+  homeScore   Int?
+  awayScore   Int?
+  predictions FixturePrediction[]
+}
+
+model FixturePrediction {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  fixtureId     Int
+  predictedHome Int
+  predictedAway Int
+  correctResult Boolean?
+  correctScore  Boolean?
+
+  User    User    @relation(fields: [userId], references: [id])
+  Fixture Fixture @relation(fields: [fixtureId], references: [id])
+
+  @@unique([userId, fixtureId], name: "userId_fixtureId")
+}

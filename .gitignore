@@ -44,6 +44,3 @@ next-env.d.ts
 
 # ignore JetBrains IDE files
 /.idea
-
-# ignore Prisma migration data
-/prisma/migrations

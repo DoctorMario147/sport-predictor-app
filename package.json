@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npx prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "clear-data": "npx ts-node prisma/clearData.ts"
@@ -28,8 +28,5 @@
     "prisma": "^6.19.0",
     "tailwindcss": "^4",
     "typescript": "^5"
-  },
-  "engines": {
-    "node": ">=20.9.0"
   }
 }

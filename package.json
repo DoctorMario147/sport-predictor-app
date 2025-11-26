@@ -7,9 +7,10 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "npx prisma generate && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "postinstall": "prisma generate && prisma migrate deploy",
     "clear-data": "npx ts-node prisma/clearData.ts"
   },
   "dependencies": {

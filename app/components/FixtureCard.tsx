@@ -1,10 +1,14 @@
 "use client";
 
-import Image from "next/image";
 import { teamColours } from "@/data/teamColours";
 import { formatTeamKey } from "@/lib/util";
+import {useRef, useState} from "react";
 
 interface FixtureCardProps {
+    index: number;
+    total: number;
+    setHomeRef: (el: HTMLInputElement | null) => void;
+    focusNext: () => void;
     f: {
         id: number;
         homeTeam: string;
@@ -15,9 +19,31 @@ interface FixtureCardProps {
     };
 }
 
-export default function FixtureCard({ f } : FixtureCardProps) {
+export default function FixtureCard({ f, setHomeRef, focusNext } : FixtureCardProps) {
+    const [homeDirty, setHomeDirty] = useState(false);
+    const [awayDirty, setAwayDirty] = useState(false);
+
     const homeColour = teamColours[formatTeamKey(f.homeTeam)];
     const awayColour = teamColours[formatTeamKey(f.awayTeam)];
+
+    const awayRef = useRef<HTMLInputElement>(null);
+
+    const handleHomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!homeDirty) setHomeDirty(true);
+
+        f.onPredict?.(f.id, "home", e.target.value);
+        if (awayRef.current) {
+            awayRef.current.focus();
+            awayRef.current.select();
+        }
+    };
+
+    const handleAwayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!awayDirty) setAwayDirty(true);
+
+        f.onPredict?.(f.id, "away", e.target.value);
+        focusNext();
+    }
 
     return (
         <div key={f.id} className="w-full max-w-sm mx-auto rounded-2xl overflow-hidden relative h-32">
@@ -37,35 +63,25 @@ export default function FixtureCard({ f } : FixtureCardProps) {
 
                 <div className="flex items-center gap-2 justify-center flex-1">
                     <input
+                        ref={setHomeRef}
                         type="number"
-                        value={f.predictedHome ?? ""}
-                        placeholder="0"
+                        value={homeDirty ? f.predictedHome ?? "" : ""}
+                        placeholder={homeDirty ? "0" : f.predictedHome ?? "0"}
                         pattern="[0-9]*"
                         className="w-12 bg-transparent text-white text-4xl font-bold text-center focus:outline-none"
-                        onChange={(e) =>
-                            f.onPredict?.(
-                                f.id,
-                                "home",
-                                e.target.value
-                            )
-                        }
+                        onChange={handleHomeChange}
                     />
 
                     <span className="text-white text-4xl font-bold">-</span>
 
                     <input
+                        ref={awayRef}
                         type="number"
-                        value={f.predictedAway ?? ""}
-                        placeholder="0"
+                        value={awayDirty ? f.predictedAway ?? "" : ""}
+                        placeholder={awayDirty ? "0" : f.predictedAway ?? "0"}
                         pattern="[0-9]*"
                         className="w-12 bg-transparent text-white text-4xl font-bold text-center focus:outline-none"
-                        onChange={(e) =>
-                            f.onPredict?.(
-                                f.id,
-                                "away",
-                                e.target.value
-                            )
-                        }
+                        onChange={handleAwayChange}
                     />
                 </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Navbar from "@/app/components/Navbar";
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import { PredictionMap } from "@/types/prediction";
 import {Fixture, UpcomingFixture} from "@/types/fixture";
 import FixtureCard from "@/app/components/FixtureCard";
@@ -11,6 +11,8 @@ export default function PredictionsPage() {
     const [predictions, setPredictions] = useState<PredictionMap>({});
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+
+    const homeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     useEffect(() => {
         const load = async () => {
@@ -81,9 +83,19 @@ export default function PredictionsPage() {
       <div className="max-w-4xl mx-auto p-6">
           <Navbar />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {fixtures.map((f) => (
+              {fixtures.map((f, index) => (
                   <FixtureCard
                       key = {f.id}
+                      index={index}
+                      total={fixtures.length}
+                      setHomeRef={(el) => (homeInputRefs.current[index] = el)}
+                      focusNext={() => {
+                          const next = homeInputRefs.current[index + 1];
+                          if (next) {
+                              next.focus();
+                              next.select();
+                          }
+                      }}
                       f={{
                         id: f.id,
                         homeTeam: f.homeTeam,

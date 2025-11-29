@@ -9,3 +9,8 @@ export type Fixture = {
     awayScore: number | null;
     season: string;
 };
+
+export type UpcomingFixture = Fixture & {
+    predictedHome: number;
+    predictedAway: number;
+}

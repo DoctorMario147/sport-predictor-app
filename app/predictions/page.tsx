@@ -3,38 +3,31 @@
 import Navbar from "@/app/components/Navbar";
 import { useEffect, useState } from "react";
 import { PredictionMap } from "@/types/prediction";
-import { Fixture } from "@/types/fixture";
-import { teamColours } from "@/data/teamColours";
-import { formatTeamKey } from "@/lib/util";
+import {Fixture, UpcomingFixture} from "@/types/fixture";
 import FixtureCard from "@/app/components/FixtureCard";
-import {requireUser} from "@/lib/auth";
-import {redirect} from "next/navigation";
-import {useRouter} from "next/router";
 
 export default function PredictionsPage() {
-    const [userId, setUserId] = useState<string | null>(null);
     const [fixtures, setFixtures] = useState<Fixture[]>([]);
     const [predictions, setPredictions] = useState<PredictionMap>({});
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
-        const cookie = document.cookie
-            .split("; ")
-            .find((c) => c.startsWith("userId="))
-            ?.split("=")[1];
-
-        if (!cookie) {
-            window.location.href = "/login";
-            return;
-        }
-
-        setUserId(cookie);
-
         const load = async () => {
             const res = await fetch("/api/predictions/upcoming");
-            const data = await res.json();
+            const data: UpcomingFixture[] = await res.json();
             setFixtures(data);
+
+            const initialPreds: PredictionMap = {};
+            data.forEach(f => {
+                initialPreds[f.id] = {
+                    home: f.predictedHome.toString(),
+                    away: f.predictedAway.toString()
+                };
+            });
+
+            setPredictions(initialPreds);
+
             setLoading(false);
         };
         load();

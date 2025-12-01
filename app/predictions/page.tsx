@@ -5,6 +5,7 @@ import {useEffect, useRef, useState} from "react";
 import { PredictionMap } from "@/types/prediction";
 import {Fixture, UpcomingFixture} from "@/types/fixture";
 import FixtureCard from "@/app/components/FixtureCard";
+import { useRouter } from "next/navigation";
 
 export default function PredictionsPage() {
     const [fixtures, setFixtures] = useState<Fixture[]>([]);
@@ -13,10 +14,17 @@ export default function PredictionsPage() {
     const [submitting, setSubmitting] = useState(false);
 
     const homeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+    const router = useRouter();
 
     useEffect(() => {
         const load = async () => {
             const res = await fetch("/api/predictions/upcoming");
+
+            if (res.status === 401) {
+                router.push("/login");
+                return;
+            }
+
             const data: UpcomingFixture[] = await res.json();
             setFixtures(data);
 
@@ -33,7 +41,7 @@ export default function PredictionsPage() {
             setLoading(false);
         };
         load();
-    }, []);
+    }, [router]);
 
     const updatePrediction = (fixtureId: number, field: "home" | "away", rawValue: string) => {
         let value = Number(rawValue);

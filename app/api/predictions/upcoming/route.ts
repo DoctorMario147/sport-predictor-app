@@ -13,10 +13,11 @@ export async function GET(req: Request) {
     }
     const userId = Number(userIdCookie);
 
+    const { searchParams } = new URL(req.url);
+    const matchday = Number(searchParams.get("matchday"));
     const fixtures = await prisma.fixture.findMany({
         where: {
-            homeScore: null,
-            awayScore: null,
+            matchday: matchday,
         },
         orderBy: {
             matchTime: "asc",

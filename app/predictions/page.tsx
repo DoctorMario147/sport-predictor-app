@@ -13,12 +13,32 @@ export default function PredictionsPage() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
+    const [minMatchday, setMinMatchday] = useState<number | null>(null);
+    const [maxMatchday, setMaxMatchday] = useState<number | null>(null);
+    const [matchday, setMatchday] = useState<number | null>(null);
+
     const homeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
     const router = useRouter();
 
     useEffect(() => {
-        const load = async () => {
-            const res = await fetch("/api/predictions/upcoming");
+        const loadData = async () => {
+            if (minMatchday === null || maxMatchday === null) {
+                const rangeRes = await fetch("/api/predictions/matchdays");
+                const rangeData = await rangeRes.json();
+
+                setMinMatchday(rangeData.min);
+                setMaxMatchday(rangeData.max);
+
+                if (matchday === null) {
+                    setMatchday(rangeData.max);
+                }
+
+                return;
+            }
+
+            if (matchday === null) return;
+
+            const res = await fetch(`/api/predictions/upcoming?matchday=${matchday}`);
 
             if (res.status === 401) {
                 router.push("/login");
@@ -37,11 +57,11 @@ export default function PredictionsPage() {
             });
 
             setPredictions(initialPreds);
-
             setLoading(false);
         };
-        load();
-    }, [router]);
+
+        loadData();
+    }, [matchday, minMatchday, maxMatchday, router]);
 
     const updatePrediction = (fixtureId: number, field: "home" | "away", rawValue: string) => {
         let value = Number(rawValue);
@@ -90,6 +110,29 @@ export default function PredictionsPage() {
     return (
       <div className="max-w-4xl mx-auto p-6">
           <Navbar />
+
+          {matchday !== null && minMatchday !== null && maxMatchday !== null && (
+              <div className="flex justify-center items-center gap-4 my-6">
+                  <button
+                      className="px-4 py-2 bg-blue-600 rounded disabled:bg-blue-300"
+                      onClick={() => setMatchday(prev => prev! - 1)}
+                      disabled={matchday <= minMatchday}
+                  >
+                      ←
+                  </button>
+
+                  <div className="font-semibold text-lg">Matchday {matchday}</div>
+
+                  <button
+                      className="px-4 py-2 bg-blue-600 rounded disabled:bg-blue-300"
+                      onClick={() => setMatchday(prev => prev! + 1)}
+                      disabled={matchday >= maxMatchday}
+                  >
+                      →
+                  </button>
+              </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {fixtures.map((f, index) => (
                   <FixtureCard
